@@ -17,7 +17,7 @@ typeClave(clave){
 
     this.elements.claveInput().type(clave)
 }
-typeButton(){
+typeButtonIngresar(){
     this.elements.buttonIngresarInput().click()
 }
 } module.exports= new SigninPage();

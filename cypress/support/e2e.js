@@ -18,5 +18,29 @@ import './commands'
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
+Cypress.Commands.add("takeScreenshotAfterTest", () => {
+    Cypress.on("test:after:run", (test, runnable) => {
+        const screenshotsFolder = Cypress.config("screenshotsFolder");
+        const testName = Cypress.mocha.getRunner().suite.title;
+        const screenshotFileName = `${testName} -- ${runnable.title}.png`;
 
-require
+        cy.screenshot(screenshotFileName, { capture: "runner" }).then(() => {
+            cy.readFile(`${screenshotsFolder}/${Cypress.spec.name}/${screenshotFileName}`, "base64").then((imgData) => {
+                const stepResult = window.testState.runTests[window.testState.currentScenario.name][window.testState.currentStep];
+                if (stepResult) {
+                    stepResult.attachment = {
+                        data: imgData,
+                        media: { type: "image/png" },
+                        index: window.testState.currentStep,
+                        testCase: window.testState.formatTestCase(window.testState.currentScenario),
+                    };
+                }
+            });
+        });
+    });
+});
+
+beforeEach(() => {
+    cy.takeScreenshotAfterTest();
+});
+
